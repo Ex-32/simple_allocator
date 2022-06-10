@@ -11,4 +11,4 @@ cmake ..
 make
 ```
 
-###### *identical behavior attempted but not guaranteed
+###### *identical behavior attempted but not guaranteed, actually nothing is guaranteed, this library might eat your cat for all i know, i can not stress enough that you should not use this

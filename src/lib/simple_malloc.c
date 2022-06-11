@@ -25,11 +25,10 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdatomic.h>
 
 #include <unistd.h>
 #include <sys/mman.h>
-
-#define MIN_SIZE sizeof(FreeNode)
 
 typedef struct {
     size_t size;
@@ -37,10 +36,22 @@ typedef struct {
     void* next;
 } FreeNode;
 
+#define MIN_SIZE sizeof(FreeNode)
+
+atomic_flag g_locked = ATOMIC_FLAG_INIT;
+
 size_t g_pagesize = 0;
 
 FreeNode* g_list_front = NULL;
 FreeNode* g_list_back  = NULL;
+
+void lock() {
+    while (atomic_flag_test_and_set(&g_locked));
+}
+
+void unlock() {
+    atomic_flag_clear(&g_locked);
+}
 
 void append_node(FreeNode* node) {
     if (g_list_front == NULL && g_list_back == NULL) {
@@ -95,6 +106,7 @@ int new_pages(size_t size) {
 
 void* simple_malloc(size_t n) {
     if (n == 0) return NULL;
+    lock();
 
     size_t size = n;
     if (size < MIN_SIZE) size = MIN_SIZE;
@@ -125,11 +137,13 @@ void* simple_malloc(size_t n) {
 
     unlink_node(node);
 
+    unlock();
     return (void*)((size_t)node+sizeof(size_t));
 }
 
 void simple_free(void* ptr) {
     if (ptr == NULL) return;
+    lock();
 
     FreeNode* node = (FreeNode*)((size_t)ptr-sizeof(size_t));
     node->prev = NULL;
@@ -166,6 +180,7 @@ void simple_free(void* ptr) {
     }
 
     if (!joined_left) append_node(node);
+    unlock();
     return;
 }
 

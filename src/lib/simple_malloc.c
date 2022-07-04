@@ -152,6 +152,7 @@ void simple_free(void* ptr) {
     if (g_list_front == NULL && g_list_back == NULL) {
         g_list_front = node;
         g_list_back = node;
+        unlock();
         return;
     }
 
@@ -181,6 +182,5 @@ void simple_free(void* ptr) {
 
     if (!joined_left) append_node(node);
     unlock(); // end of access to freelist
-
     return;
 }

@@ -28,3 +28,8 @@ target*
 .DS_Store
 .Trash*
 desktop.ini
+
+# editor cache/config files/directories
+.vs
+.vscode
+*.code-workspace

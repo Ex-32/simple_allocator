@@ -20,9 +20,9 @@ _deps
 *.exe
 
 # build directories
-build*
-out*
-target*
+[Bb]uild*
+[Oo]ut*
+[Tt]arget*
 
 # OS cache/config files/directories
 .DS_Store
@@ -30,6 +30,7 @@ target*
 desktop.ini
 
 # editor cache/config files/directories
+.cache
 .vs
 .vscode
 *.code-workspace

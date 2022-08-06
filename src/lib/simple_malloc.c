@@ -113,7 +113,7 @@ void* simple_malloc(size_t n) {
 
     lock(); // start of access to the freelist
     if (g_list_front == NULL && g_list_back == NULL) {
-        if (new_pages(size) != 0) return NULL;
+        if (new_pages(size) != 0) goto UNLOCK_AND_FAIL;
     }
 
     FreeNode* node = g_list_front;
@@ -122,7 +122,7 @@ void* simple_malloc(size_t n) {
         if (node->next != NULL) {
             node = node->next;
         } else {
-            if (new_pages(size) != 0) return NULL;
+            if (new_pages(size) != 0) goto UNLOCK_AND_FAIL;
             node = node->next;
         }
     }
@@ -136,8 +136,11 @@ void* simple_malloc(size_t n) {
 
     unlink_node(node);
     unlock(); // end of access to freelist
-
     return (void*)((size_t)node+sizeof(size_t));
+
+    UNLOCK_AND_FAIL:
+    unlock();
+    return NULL;
 }
 
 void simple_free(void* ptr) {
